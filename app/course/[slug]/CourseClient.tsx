@@ -138,36 +138,25 @@ export default function CourseClient({
     <div className="flex flex-col min-h-screen relative">
       <AnimatePresence mode="wait">
         {view === 'map' ? (
-          <>
-            <JourneyPage
-              worlds={worlds}
-              unlockedLevels={playableIds}
-              lessonProgressMap={lessonProgressMap}
-              onStartLesson={(idx) => {
-                  const lessonsInThisSection = worlds.flatMap(w => w.lessons);
-                  const lesson = lessonsInThisSection[idx];
-                  handleStartLesson(lesson);
-              }}
-            />
-
-            {/* Plovoucí tlačítko pro procvičování slabých míst */}
-            {practiceLesson && (
-              <div className="fixed bottom-6 right-6 md:right-[calc(50%-384px+24px)] z-50">
-                <button
-                  onClick={() => handleStartLesson(practiceLesson)}
-                  className="flex items-center gap-3 bg-white border-2 border-duo-gray rounded-2xl px-6 py-4 shadow-[0_4px_0_#e5e5e5] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-gray/5"
-                >
-                  <div className="bg-duo-red rounded-xl p-2 text-white group-hover:scale-110 transition-transform">
-                    <Target size={24} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] font-black text-duo-gray-dark uppercase tracking-wider leading-none">Procvičit</p>
-                    <p className="text-sm font-black text-duo-text uppercase">Slabá místa</p>
-                  </div>
-                </button>
-              </div>
-            )}
-          </>
+          <JourneyPage
+            worlds={worlds}
+            unlockedLevels={playableIds}
+            lessonProgressMap={lessonProgressMap}
+            onStartLesson={(idx) => {
+                const lessonsInThisSection = worlds.flatMap(w => w.lessons);
+                const lesson = lessonsInThisSection[idx];
+                handleStartLesson(lesson);
+            }}
+            headerAction={practiceLesson ? (
+              <button
+                onClick={() => handleStartLesson(practiceLesson)}
+                title="Procvičit slabá místa"
+                className="p-4 bg-duo-red rounded-2xl text-white shadow-[0_5px_0_#bf2d2d] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-red-dark"
+              >
+                <Target size={28} className="group-hover:scale-110 transition-transform" />
+              </button>
+            ) : null}
+          />
         ) : currentLesson && (
           <GameRouter
             lesson={{
