@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
+import { Target } from "lucide-react";
 import { JourneyPage } from "@/components/JourneyPage";
 import { GameRouter } from "@/components/Game/GameRouter";
 import { saveLessonProgress, type ProgressResult } from "@/app/actions/progress";
@@ -57,103 +58,35 @@ export default function CourseClient({
       }
   });
 
-  // Speciální pravidlo: Lekce z sekce "Procvičování" jsou odemčené, pokud má uživatel alespov 5 hotových lekcí
   const weakKeys = getWeakestKeys(difficultKeys, 10).map(k => k.char);
-  const hasEnoughProgress = completedLessonIds.length >= 5;
 
   const worlds = currentSection.units.map(u => ({
     id: u.id,
     name: u.title,
     order: u.order,
     color: "var(--accent-color)",
-    lessons: u.lessons.map(l => {
-      let content = JSON.parse(l.content);
-      const criteria = JSON.parse(l.criteria);
-
-      // Dynamické přepsání obsahu pro procvičovací lekce (pokud se tam nějaké dostanou z DB)
-      if (course.slug === 'deseti-prsty' && l.slug.startsWith('s9u1-weak')) {
-        if (weakKeys.length > 0) {
-          content = {
-            mode: "letter",
-            letters: generateDifficultKeysPractice(weakKeys, 50)
-          };
-        }
-      }
-
-      return {
-        ...l,
-        content,
-        criteria
-      };
-    })
+    lessons: u.lessons.map(l => ({
+      ...l,
+      content: JSON.parse(l.content),
+      criteria: JSON.parse(l.criteria)
+    }))
   }));
 
-  // Pokud jsme v kurzu deseti-prsty a máme problémové klávesy,
-  // přidáme speciální unit pro procvičování na konec každé sekce
-  if (course.slug === 'deseti-prsty' && weakKeys.length > 0 && currentSection.order < 9) {
-    // Najdeme ID pro tyto lekce z kurzu (pokud tam jsou)
-    const weak1 = allLessonsInCourse.find(l => l.slug === "s9u1-weak1");
-    const weak2 = allLessonsInCourse.find(l => l.slug === "s9u1-weak2");
-    const weak3 = allLessonsInCourse.find(l => l.slug === "s9u1-weak3");
-
-    if (weak1) {
-      worlds.push({
-        id: "dynamic-practice-unit",
-        name: "Problémové klávesy",
-        order: 99,
-        color: "#ff4b4b", // Reddish for "problems"
-        lessons: [
-          {
-            id: weak1.id,
-            title: "Slabá místa (Úroveň 1)",
-            slug: weak1.slug,
-            content: {
-              mode: "letter" as const,
-              letters: generateDifficultKeysPractice(weakKeys, 40)
-            },
-            criteria: { minAccuracy: 90, minWpm: 0 },
-            isReview: true,
-            xp: 15,
-            order: 1,
-            unitId: "dynamic-practice-unit"
-          },
-          ...(weak2 ? [{
-            id: weak2.id,
-            title: "Slabá místa (Úroveň 2)",
-            slug: weak2.slug,
-            content: {
-              mode: "letter" as const,
-              letters: generateDifficultKeysPractice(weakKeys, 60)
-            },
-            criteria: { minAccuracy: 92, minWpm: 0 },
-            isReview: true,
-            xp: 15,
-            order: 2,
-            unitId: "dynamic-practice-unit"
-          }] : []),
-          ...(weak3 ? [{
-            id: weak3.id,
-            title: "Slabá místa (Úroveň 3)",
-            slug: weak3.slug,
-            content: {
-              mode: "letter" as const,
-              letters: generateDifficultKeysPractice(weakKeys, 80)
-            },
-            criteria: { minAccuracy: 95, minWpm: 0 },
-            isReview: true,
-            xp: 20,
-            order: 3,
-            unitId: "dynamic-practice-unit"
-          }] : [])
-        ]
-      });
-
-      // Ensure the dynamic lessons are unlocked
-      if (!playableIds.includes(weak1.id)) playableIds.push(weak1.id);
-      if (weak2 && !playableIds.includes(weak2.id)) playableIds.push(weak2.id);
-      if (weak3 && !playableIds.includes(weak3.id)) playableIds.push(weak3.id);
-    }
-  }
+  // Najdeme lekci pro procvičování slabých míst (v DB je pod slugem s9u1-weak1)
+  const weakKeyLesson = allLessonsInCourse.find(l => l.slug === "s9u1-weak1");
+  const practiceLesson: ParsedLessonData | null = (course.slug === 'deseti-prsty' && weakKeys.length > 0 && weakKeyLesson) 
+    ? {
+        ...weakKeyLesson,
+        title: "Procvičit slabá místa",
+        content: {
+          mode: "letter" as const,
+          letters: generateDifficultKeysPractice(weakKeys, 50)
+        },
+        criteria: { minAccuracy: 90, minWpm: 0 },
+        isReview: true,
+        xp: 15,
+      } as any
+    : null;
 
   const handleStartLesson = (lesson: ParsedLessonData) => {
     setCurrentLesson(lesson);
@@ -202,19 +135,39 @@ export default function CourseClient({
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       <AnimatePresence mode="wait">
         {view === 'map' ? (
-          <JourneyPage
-            worlds={worlds}
-            unlockedLevels={playableIds}
-            lessonProgressMap={lessonProgressMap}
-            onStartLesson={(idx) => {
-                const lessonsInThisSection = worlds.flatMap(w => w.lessons);
-                const lesson = lessonsInThisSection[idx];
-                handleStartLesson(lesson);
-            }}
-          />
+          <>
+            <JourneyPage
+              worlds={worlds}
+              unlockedLevels={playableIds}
+              lessonProgressMap={lessonProgressMap}
+              onStartLesson={(idx) => {
+                  const lessonsInThisSection = worlds.flatMap(w => w.lessons);
+                  const lesson = lessonsInThisSection[idx];
+                  handleStartLesson(lesson);
+              }}
+            />
+
+            {/* Plovoucí tlačítko pro procvičování slabých míst */}
+            {practiceLesson && (
+              <div className="fixed bottom-6 right-6 md:right-[calc(50%-384px+24px)] z-50">
+                <button
+                  onClick={() => handleStartLesson(practiceLesson)}
+                  className="flex items-center gap-3 bg-white border-2 border-duo-gray rounded-2xl px-6 py-4 shadow-[0_4px_0_#e5e5e5] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-gray/5"
+                >
+                  <div className="bg-duo-red rounded-xl p-2 text-white group-hover:scale-110 transition-transform">
+                    <Target size={24} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] font-black text-duo-gray-dark uppercase tracking-wider leading-none">Procvičit</p>
+                    <p className="text-sm font-black text-duo-text uppercase">Slabá místa</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </>
         ) : currentLesson && (
           <GameRouter
             lesson={{

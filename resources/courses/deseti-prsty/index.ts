@@ -26,7 +26,6 @@ function buildCourse() {
     buildSection6(),
     buildSection7(),
     buildSection8(),
-    buildSection9(),
   ];
 
   return {
