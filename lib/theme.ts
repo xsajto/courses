@@ -1,10 +1,10 @@
 export const theme = {
   green: "#6366f1", // Indigo 500
   greenDark: "#4f46e5", // Indigo 600
-  blue: "#f43f5e", // Rose 500
-  blueDark: "#e11d48", // Rose 600
-  red: "#fb7185", // Rose 400
-  redDark: "#f43f5e",
+  blue: "#06b6d4", // Cyan 500
+  blueDark: "#0891b2", // Cyan 600
+  red: "#22d3ee", // Cyan 400
+  redDark: "#06b6d4",
   yellow: "#f59e0b", // Amber 500
   yellowDark: "#d97706",
   purple: "#a855f7", // Purple 500
@@ -21,8 +21,8 @@ export const theme = {
   
   // Soft variants
   greenLight: "#e0e7ff",
-  blueLight: "#fff1f2",
-  redLight: "#fff1f2",
+  blueLight: "#ecfeff",
+  redLight: "#ecfeff",
   yellowLight: "#fffbeb",
   purpleLight: "#f3e8ff",
 };
@@ -30,7 +30,7 @@ export const theme = {
 export const UNIT_COLORS = [
   theme.green,
   theme.purple,
-  "#06b6d4", // Cyan
+  "#0ea5e9", // Sky Blue
   "#10b981", // Emerald
   theme.yellow,
 ];
@@ -38,7 +38,7 @@ export const UNIT_COLORS = [
 export const UNIT_COLORS_DARK = [
   theme.greenDark,
   theme.purpleDark,
-  "#0891b2",
+  "#0284c7",
   "#059669",
   theme.yellowDark,
 ];

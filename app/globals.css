@@ -3,15 +3,15 @@
 @theme {
   --color-duo-green: #6366f1; /* Indigo 500 */
   --color-duo-green-dark: #4f46e5; /* Indigo 600 */
-  --color-duo-blue: #f43f5e; /* Rose 500 */
-  --color-duo-blue-dark: #e11d48; /* Rose 600 */
-  --color-duo-red: #fb7185; /* Rose 400 */
-  --color-duo-red-dark: #f43f5e;
+  --color-duo-blue: #06b6d4; /* Cyan 500 - Secondary Action */
+  --color-duo-blue-dark: #0891b2; /* Cyan 600 */
+  --color-duo-red: #22d3ee; /* Cyan 400 */
+  --color-duo-red-dark: #06b6d4;
   --color-duo-purple: #a855f7; /* Purple 500 */
   --color-duo-purple-dark: #9333ea;
   --color-duo-yellow: #f59e0b; /* Amber 500 */
   --color-duo-yellow-dark: #d97706;
-  --color-duo-blue-light: #fff1f2; /* Rose 50 */
+  --color-duo-blue-light: #ecfeff; /* Cyan 50 */
   --color-duo-gray: #e5e7eb;
   --color-duo-gray-dark: #9ca3af;
   --color-duo-text: #374151;
