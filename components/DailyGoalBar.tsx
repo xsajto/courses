@@ -19,7 +19,7 @@ export function DailyGoalBar({ lessonsCompleted, lessonGoal }: DailyGoalBarProps
           Denní cíl
         </span>
         <span className={isComplete ? "text-duo-green" : "text-duo-gray-dark"}>
-          {lessonsCompleted}/{lessonGoal} lekcí
+          {Math.min(lessonsCompleted, lessonGoal)}/{lessonGoal} lekcí
         </span>
       </div>
       <div className="h-2.5 bg-duo-gray/40 rounded-full overflow-hidden">
