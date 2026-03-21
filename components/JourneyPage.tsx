@@ -26,9 +26,10 @@ interface JourneyPageProps {
   unlockedLevels: string[];
   lessonProgressMap: LessonProgressMap;
   onStartLesson: (lessonIdx: number) => void;
+  headerAction?: React.ReactNode;
 }
 
-export const JourneyPage: React.FC<JourneyPageProps> = ({ worlds, unlockedLevels, lessonProgressMap, onStartLesson }) => {
+export const JourneyPage: React.FC<JourneyPageProps> = ({ worlds, unlockedLevels, lessonProgressMap, onStartLesson, headerAction }) => {
   const [selectedLesson, setSelectedLesson] = useState<{ lesson: ParsedLessonData, globalIdx: number } | null>(null);
   const [guideWorld, setGuideWorld] = useState<WorldData | null>(null);
   const params = useParams();
@@ -56,16 +57,19 @@ export const JourneyPage: React.FC<JourneyPageProps> = ({ worlds, unlockedLevels
     <div className="flex flex-col items-center pb-32">
       {/* Header navigace sekcí */}
       <div className="w-full max-w-lg sticky top-0 z-40 bg-white/95 backdrop-blur-sm pt-6 pb-4 px-4 border-b-2 border-duo-gray mb-8">
-        <Link
-            href={`/course/${params.slug}/sections`}
-            className="w-full flex items-center justify-between p-4 bg-duo-blue rounded-2xl text-white shadow-[0_5px_0_var(--color-duo-blue-dark)] active:translate-y-1 active:shadow-none transition-all group"
-        >
-            <div className="flex items-center gap-4">
-                <LayoutGrid className="size-6 transition-transform group-hover:rotate-90" />
-                <span className="font-black uppercase tracking-widest text-sm">Změnit sekci</span>
-            </div>
-            <Trophy className="size-6" />
-        </Link>
+        <div className="flex gap-3">
+          <Link
+              href={`/course/${params.slug}/sections`}
+              className="flex-1 flex items-center justify-between p-4 bg-duo-blue rounded-2xl text-white shadow-[0_5px_0_var(--color-duo-blue-dark)] active:translate-y-1 active:shadow-none transition-all group"
+          >
+              <div className="flex items-center gap-4">
+                  <LayoutGrid className="size-6 transition-transform group-hover:rotate-90" />
+                  <span className="font-black uppercase tracking-widest text-sm">Sekce</span>
+              </div>
+              <Trophy className="size-6" />
+          </Link>
+          {headerAction}
+        </div>
       </div>
 
       <div className="w-full max-w-lg px-4 space-y-8">
