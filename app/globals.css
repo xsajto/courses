@@ -1,23 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-duo-green: #58cc02;
-  --color-duo-green-dark: #46a302;
-  --color-duo-blue: #1cb0f6;
-  --color-duo-blue-dark: #1899d6;
-  --color-duo-red: #ff4b4b;
-  --color-duo-red-dark: #d33131;
-  --color-duo-purple: #ce82ff;
-  --color-duo-purple-dark: #af52de;
-  --color-duo-yellow: #ffc800;
-  --color-duo-yellow-dark: #e5a500;
-  --color-duo-blue-light: #ddf4ff;
-  --color-duo-gray: #e5e5e5;
-  --color-duo-gray-dark: #afafaf;
-  --color-duo-text: #4b4b4b;
-  --color-duo-keyboard-bg: #d6d6d6;
-  --color-duo-keyboard-shadow: #bababa;
-  --color-error: #ea2b2b;
+  --color-duo-green: #6366f1; /* Indigo 500 */
+  --color-duo-green-dark: #4f46e5; /* Indigo 600 */
+  --color-duo-blue: #f43f5e; /* Rose 500 */
+  --color-duo-blue-dark: #e11d48; /* Rose 600 */
+  --color-duo-red: #fb7185; /* Rose 400 */
+  --color-duo-red-dark: #f43f5e;
+  --color-duo-purple: #a855f7; /* Purple 500 */
+  --color-duo-purple-dark: #9333ea;
+  --color-duo-yellow: #f59e0b; /* Amber 500 */
+  --color-duo-yellow-dark: #d97706;
+  --color-duo-blue-light: #fff1f2; /* Rose 50 */
+  --color-duo-gray: #e5e7eb;
+  --color-duo-gray-dark: #9ca3af;
+  --color-duo-text: #374151;
+  --color-duo-keyboard-bg: #e5e7eb;
+  --color-duo-keyboard-shadow: #d1d5db;
+  --color-error: #ef4444;
   
   --font-sans: var(--font-nunito), "system-ui", -apple-system, sans-serif;
 }

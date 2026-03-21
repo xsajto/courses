@@ -1,36 +1,44 @@
-/** Shared theme constants mirroring CSS @theme variables.
- *  Used where CSS var() isn't supported (e.g. framer-motion animate props). */
 export const theme = {
-  green: "#58cc02",
-  greenDark: "#46a302",
-  blue: "#1cb0f6",
-  blueDark: "#1899d6",
-  red: "#ff4b4b",
-  redDark: "#d33131",
-  purple: "#ce82ff",
-  purpleDark: "#af52de",
-  yellow: "#ffc800",
-  yellowDark: "#e5a500",
-  blueLight: "#ddf4ff",
-  gray: "#e5e5e5",
-  grayDark: "#afafaf",
-  text: "#4b4b4b",
-  white: "#ffffff",
+  green: "#6366f1", // Indigo 500
+  greenDark: "#4f46e5", // Indigo 600
+  blue: "#f43f5e", // Rose 500
+  blueDark: "#e11d48", // Rose 600
+  red: "#fb7185", // Rose 400
+  redDark: "#f43f5e",
+  yellow: "#f59e0b", // Amber 500
+  yellowDark: "#d97706",
+  purple: "#a855f7", // Purple 500
+  purpleDark: "#9333ea",
+  gray: "#e5e7eb",
+  grayDark: "#9ca3af",
+  text: "#374151",
   surface: "#f7f7f7",
-} as const;
+  background: "#ffffff",
+  
+  // Specific UI elements
+  keyboardBg: "#e5e7eb",
+  keyboardShadow: "#d1d5db",
+  
+  // Soft variants
+  greenLight: "#e0e7ff",
+  blueLight: "#fff1f2",
+  redLight: "#fff1f2",
+  yellowLight: "#fffbeb",
+  purpleLight: "#f3e8ff",
+};
 
 export const UNIT_COLORS = [
   theme.green,
-  theme.blue,
-  theme.red,
   theme.purple,
+  "#06b6d4", // Cyan
+  "#10b981", // Emerald
   theme.yellow,
-] as const;
+];
 
 export const UNIT_COLORS_DARK = [
   theme.greenDark,
-  theme.blueDark,
-  theme.redDark,
   theme.purpleDark,
+  "#0891b2",
+  "#059669",
   theme.yellowDark,
-] as const;
+];
