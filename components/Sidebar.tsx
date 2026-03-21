@@ -79,10 +79,10 @@ export function Sidebar({ isOpen, onClose, dailyStats }: SidebarProps) {
 
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-4 px-4 py-3 rounded-xl font-black text-duo-gray-dark hover:bg-red-50 hover:text-red-500 transition-colors mt-auto group"
+          className="flex items-center gap-4 px-4 py-3 rounded-2xl font-black text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors mt-auto group"
         >
-          <LogOut className="size-7 group-hover:rotate-12 transition-transform" />
-          <span className="tracking-wide text-sm">ODHLÁSIT SE</span>
+          <LogOut className="size-6 group-hover:rotate-12 transition-transform" />
+          <span className="tracking-wide text-xs uppercase">Odhlásit se</span>
         </button>
       </div>
     </>

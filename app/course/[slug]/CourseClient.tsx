@@ -43,37 +43,44 @@ export default function CourseClient({
   // Získáme všechny znaky, které se uživatel už naučil (vyskytují se v hotových lekcích)
   const learnedCharacters = useMemo(() => {
     const chars = new Set<string>();
-    for (const lessonId of completedLessonIds) {
-      const lesson = allLessonsInCourse.find(l => l.id === lessonId);
-      if (!lesson) continue;
-      try {
-        const content = JSON.parse(lesson.content);
-        if (content.mode === "letter" || content.mode === "raining" || content.mode === "fast-raining") {
-          content.letters?.forEach((l: string) => chars.add(l));
-        } else if (content.mode === "new-letter") {
-          chars.add(content.letter);
-          content.letters?.forEach((l: string) => chars.add(l));
-        } else if (content.mode === "copying" && content.text) {
-          // Pro textové lekce přidáme všechny unikátní znaky
-          for (const char of content.text.toLowerCase()) {
-            if (char !== " ") chars.add(char);
+    
+    // Projdeme VŠECHNY sekce a lekce, které jsou PŘED aktuální lekcí (včetně té aktuálně rozdělané)
+    // Protože pokud je lekce v mapě jako "odemčená" nebo "hotová", předpokládáme, že znaky z ní 
+    // už uživatel mohl vidět. Ale pro jistotu bereme ty, co mají progres.
+    for (const lesson of allLessonsInCourse) {
+      if (completedLessonIds.includes(lesson.id)) {
+        try {
+          const content = JSON.parse(lesson.content);
+          // Hledáme znaky v různých typech lekcí
+          if (content.mode === "new-letter" && content.letter) {
+            chars.add(content.letter.toLowerCase());
           }
-        }
-      } catch (e) {
-        // Ignorovat chyby parsování
+          if (content.letters && Array.isArray(content.letters)) {
+            content.letters.forEach((l: string) => chars.add(l.toLowerCase()));
+          }
+          if (content.mode === "copying" && content.text) {
+            for (const char of content.text.toLowerCase()) {
+              if (char.trim()) chars.add(char);
+            }
+          }
+        } catch (e) {}
       }
     }
+    
+    // Základní sada pro začátek (pokud by set byl prázdný)
+    if (chars.size === 0) {
+        ["j", "f", "u", "k"].forEach(c => chars.add(c));
+    }
+
     return chars;
   }, [completedLessonIds, allLessonsInCourse]);
 
   // Výpočet aktuálně hratelných lekcí (unlocked)
   const playableIds = useMemo(() => {
     const ids = [...completedLessonIds];
-    // První lekce kurzu je vždy odemčená
     if (allLessonsInCourse.length > 0 && !ids.includes(allLessonsInCourse[0].id)) {
       ids.push(allLessonsInCourse[0].id);
     }
-    // Pokud je nějaká lekce hotová, odemkni tu hned po ní
     allLessonsInCourse.forEach((lesson, idx) => {
         if (completedLessonIds.includes(lesson.id) && idx < allLessonsInCourse.length - 1) {
             const nextId = allLessonsInCourse[idx + 1].id;
@@ -87,11 +94,13 @@ export default function CourseClient({
 
   // Filtrujeme slabé klávesy — bereme jen ty, které se uživatel už naučil
   const weakKeys = useMemo(() => {
-    const sorted = getWeakestKeys(difficultKeys, 20);
-    return sorted
+    const sorted = getWeakestKeys(difficultKeys, 30);
+    const filtered = sorted
       .filter(k => learnedCharacters.has(k.char.toLowerCase()))
       .slice(0, 10)
       .map(k => k.char);
+    
+    return filtered;
   }, [difficultKeys, learnedCharacters]);
 
   const worlds = useMemo(() => currentSection.units.map(u => ({
@@ -106,7 +115,7 @@ export default function CourseClient({
     }))
   })), [currentSection]);
 
-  // Najdeme lekci pro procvičování slabých míst (v DB je pod slugem s9u1-weak1)
+  // Najdeme lekci pro procvičování slabých míst
   const weakKeyLesson = allLessonsInCourse.find(l => l.slug === "s9u1-weak1");
   const practiceLesson: ParsedLessonData | null = (course.slug === 'deseti-prsty' && weakKeys.length > 0 && weakKeyLesson) 
     ? {
@@ -159,7 +168,6 @@ export default function CourseClient({
     }
     setLastResult(result);
 
-    // Show achievement toasts
     if (result.newAchievements && result.newAchievements.length > 0) {
       showAchievements(result.newAchievements);
     }
@@ -186,7 +194,7 @@ export default function CourseClient({
                 <button
                   onClick={() => handleStartLesson(practiceLesson)}
                   title="Procvičit slabá místa"
-                  className="p-4 bg-duo-red rounded-2xl text-white shadow-[0_5px_0_#bf2d2d] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-red-dark"
+                  className="p-4 bg-duo-blue rounded-2xl text-white shadow-[0_5px_0_var(--color-duo-blue-dark)] active:translate-y-1 active:shadow-none transition-all group"
                 >
                   <Target size={28} className="group-hover:scale-110 transition-transform" />
                 </button>
