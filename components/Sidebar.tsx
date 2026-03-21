@@ -12,7 +12,6 @@ import type { DailyStats } from "@/app/actions/progress";
 const navItems = [
   { icon: BookOpen, label: "UČIT SE", href: "/" },
   { icon: LayoutGrid, label: "KURZY", href: "/courses" },
-  { icon: Keyboard, label: "PROBLÉM. KLÁVESY", href: "/practice/difficult-keys" },
   { icon: User, label: "PROFIL", href: "/profile" },
 ];
 
