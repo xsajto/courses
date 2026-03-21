@@ -50,8 +50,9 @@ export default async function SectionsPage({ params }: { params: Promise<{ slug:
             
             const prevSection = course.sections[idx - 1];
             const prevSectionLessons = prevSection?.units.flatMap(u => u.lessons) || [];
-            const isPrevCompleted = prevSection ? prevSectionLessons.every(l => completedLessonIds.includes(l.id)) : true;
-            const isUnlocked = idx === 0 || isPrevCompleted;
+            // Odemkneme sekci, pokud je předchozí alespoň částečně hotová (aspoň 1 lekce)
+            const isPrevStarted = prevSection ? prevSectionLessons.some(l => completedLessonIds.includes(l.id)) : true;
+            const isUnlocked = idx === 0 || isPrevStarted;
 
             const content = (
               <>

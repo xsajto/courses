@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { Target } from "lucide-react";
@@ -30,37 +30,71 @@ export default function CourseClient({
   const [lastResult, setLastResult] = useState<ProgressResult | null>(null);
 
   // Všechny lekce v celém kurzu pro výpočet odemykání
-  const allLessonsInCourse = [...course.sections]
+  const allLessonsInCourse = useMemo(() => [...course.sections]
     .sort((a, b) => a.order - b.order)
     .flatMap(s => [...s.units]
         .sort((a, b) => a.order - b.order)
         .flatMap(u => [...u.lessons].sort((a, b) => a.order - b.order))
-    );
+    ), [course.sections]);
 
-  // Completed lesson IDs from the progress map
-  const completedLessonIds = Object.keys(lessonProgressMap);
+  // IDs hotových lekcí
+  const completedLessonIds = useMemo(() => Object.keys(lessonProgressMap), [lessonProgressMap]);
 
-  // Výpočet aktuálně hratelných lekcí
-  const playableIds = [...completedLessonIds];
-
-  // První lekce kurzu je vždy odemčená
-  if (allLessonsInCourse.length > 0 && !playableIds.includes(allLessonsInCourse[0].id)) {
-    playableIds.push(allLessonsInCourse[0].id);
-  }
-
-  // Pokud je nějaká lekce hotová, odemkni tu hned po ní
-  allLessonsInCourse.forEach((lesson, idx) => {
-      if (completedLessonIds.includes(lesson.id) && idx < allLessonsInCourse.length - 1) {
-          const nextId = allLessonsInCourse[idx + 1].id;
-          if (!playableIds.includes(nextId)) {
-              playableIds.push(nextId);
+  // Získáme všechny znaky, které se uživatel už naučil (vyskytují se v hotových lekcích)
+  const learnedCharacters = useMemo(() => {
+    const chars = new Set<string>();
+    for (const lessonId of completedLessonIds) {
+      const lesson = allLessonsInCourse.find(l => l.id === lessonId);
+      if (!lesson) continue;
+      try {
+        const content = JSON.parse(lesson.content);
+        if (content.mode === "letter" || content.mode === "raining" || content.mode === "fast-raining") {
+          content.letters?.forEach((l: string) => chars.add(l));
+        } else if (content.mode === "new-letter") {
+          chars.add(content.letter);
+          content.letters?.forEach((l: string) => chars.add(l));
+        } else if (content.mode === "copying" && content.text) {
+          // Pro textové lekce přidáme všechny unikátní znaky
+          for (const char of content.text.toLowerCase()) {
+            if (char !== " ") chars.add(char);
           }
+        }
+      } catch (e) {
+        // Ignorovat chyby parsování
       }
-  });
+    }
+    return chars;
+  }, [completedLessonIds, allLessonsInCourse]);
 
-  const weakKeys = getWeakestKeys(difficultKeys, 10).map(k => k.char);
+  // Výpočet aktuálně hratelných lekcí (unlocked)
+  const playableIds = useMemo(() => {
+    const ids = [...completedLessonIds];
+    // První lekce kurzu je vždy odemčená
+    if (allLessonsInCourse.length > 0 && !ids.includes(allLessonsInCourse[0].id)) {
+      ids.push(allLessonsInCourse[0].id);
+    }
+    // Pokud je nějaká lekce hotová, odemkni tu hned po ní
+    allLessonsInCourse.forEach((lesson, idx) => {
+        if (completedLessonIds.includes(lesson.id) && idx < allLessonsInCourse.length - 1) {
+            const nextId = allLessonsInCourse[idx + 1].id;
+            if (!ids.includes(nextId)) {
+                ids.push(nextId);
+            }
+        }
+    });
+    return ids;
+  }, [completedLessonIds, allLessonsInCourse]);
 
-  const worlds = currentSection.units.map(u => ({
+  // Filtrujeme slabé klávesy — bereme jen ty, které se uživatel už naučil
+  const weakKeys = useMemo(() => {
+    const sorted = getWeakestKeys(difficultKeys, 20);
+    return sorted
+      .filter(k => learnedCharacters.has(k.char.toLowerCase()))
+      .slice(0, 10)
+      .map(k => k.char);
+  }, [difficultKeys, learnedCharacters]);
+
+  const worlds = useMemo(() => currentSection.units.map(u => ({
     id: u.id,
     name: u.title,
     order: u.order,
@@ -70,7 +104,7 @@ export default function CourseClient({
       content: JSON.parse(l.content),
       criteria: JSON.parse(l.criteria)
     }))
-  }));
+  })), [currentSection]);
 
   // Najdeme lekci pro procvičování slabých míst (v DB je pod slugem s9u1-weak1)
   const weakKeyLesson = allLessonsInCourse.find(l => l.slug === "s9u1-weak1");
@@ -138,25 +172,27 @@ export default function CourseClient({
     <div className="flex flex-col min-h-screen relative">
       <AnimatePresence mode="wait">
         {view === 'map' ? (
-          <JourneyPage
-            worlds={worlds}
-            unlockedLevels={playableIds}
-            lessonProgressMap={lessonProgressMap}
-            onStartLesson={(idx) => {
-                const lessonsInThisSection = worlds.flatMap(w => w.lessons);
-                const lesson = lessonsInThisSection[idx];
-                handleStartLesson(lesson);
-            }}
-            headerAction={practiceLesson ? (
-              <button
-                onClick={() => handleStartLesson(practiceLesson)}
-                title="Procvičit slabá místa"
-                className="p-4 bg-duo-red rounded-2xl text-white shadow-[0_5px_0_#bf2d2d] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-red-dark"
-              >
-                <Target size={28} className="group-hover:scale-110 transition-transform" />
-              </button>
-            ) : null}
-          />
+          <>
+            <JourneyPage
+              worlds={worlds}
+              unlockedLevels={playableIds}
+              lessonProgressMap={lessonProgressMap}
+              onStartLesson={(idx) => {
+                  const lessonsInThisSection = worlds.flatMap(w => w.lessons);
+                  const lesson = lessonsInThisSection[idx];
+                  handleStartLesson(lesson);
+              }}
+              headerAction={practiceLesson ? (
+                <button
+                  onClick={() => handleStartLesson(practiceLesson)}
+                  title="Procvičit slabá místa"
+                  className="p-4 bg-duo-red rounded-2xl text-white shadow-[0_5px_0_#bf2d2d] active:translate-y-1 active:shadow-none transition-all group hover:bg-duo-red-dark"
+                >
+                  <Target size={28} className="group-hover:scale-110 transition-transform" />
+                </button>
+              ) : null}
+            />
+          </>
         ) : currentLesson && (
           <GameRouter
             lesson={{
