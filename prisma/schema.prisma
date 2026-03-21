@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  name             String?
+  resetToken       String?   @unique
+  resetExpires     DateTime?
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastActivityDate String?
+  dailyXpGoal      Int       @default(20)
+  dailyLessonGoal  Int       @default(3)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  progress         UserLessonProgress[]
+  attempts         LessonAttempt[]
+  dailyActivities  DailyActivity[]
+  achievements     UserAchievement[]
+}
+
+model DailyActivity {
+  id               String @id @default(cuid())
+  userId           String
+  date             String // "YYYY-MM-DD" UTC
+  xpEarned         Int    @default(0)
+  lessonsCompleted Int    @default(0)
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  description String?
+  type        String
+  sections    Section[]
+}
+
+model Section {
+  id       String   @id @default(cuid())
+  title    String
+  order    Int
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  units    Unit[]
+}
+
+model Unit {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int
+  sectionId String
+  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+}
+
+model Lesson {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String
+  content      String
+  criteria     String
+  isReview     Boolean  @default(false)
+  xp           Int      @default(10)
+  order        Int
+  unitId       String
+  unit         Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  userProgress UserLessonProgress[]
+  attempts     LessonAttempt[]
+}
+
+model UserLessonProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  lessonId     String
+  completedAt  DateTime @default(now())
+  xp           Int      @default(10)
+  accuracy     Float?
+  wpm          Int?
+  errorCount   Int?
+  errors       String?
+  totalTime    Int?
+  bestAccuracy Float?
+  bestWpm      Int?
+  attemptCount Int      @default(1)
+  masteryLevel Int      @default(0)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model LessonAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime @default(now())
+  baseXp      Int      @default(10)
+  bonusXp     Int      @default(0)
+  totalXp     Int      @default(10)
+  accuracy    Float?
+  wpm         Int?
+  errorCount  Int?
+  errors      String?
+  totalTime   Int?
+  passed      Boolean  @default(true)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lessonId])
+  @@index([userId])
+}

@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+@theme {
+  --color-duo-green: #58cc02;
+  --color-duo-green-dark: #46a302;
+  --color-duo-blue: #1cb0f6;
+  --color-duo-blue-dark: #1899d6;
+  --color-duo-red: #ff4b4b;
+  --color-duo-red-dark: #d33131;
+  --color-duo-purple: #ce82ff;
+  --color-duo-purple-dark: #af52de;
+  --color-duo-yellow: #ffc800;
+  --color-duo-yellow-dark: #e5a500;
+  --color-duo-blue-light: #ddf4ff;
+  --color-duo-gray: #e5e5e5;
+  --color-duo-gray-dark: #afafaf;
+  --color-duo-text: #4b4b4b;
+  --color-duo-keyboard-bg: #d6d6d6;
+  --color-duo-keyboard-shadow: #bababa;
+  --color-error: #ea2b2b;
+  
+  --font-sans: var(--font-nunito), "system-ui", -apple-system, sans-serif;
+}
+
+:root {
+  --bg-color: #ffffff;
+  --surface-color: #f7f7f7;
+  --accent-color: var(--color-duo-green);
+}
+
+@layer base {
+  * { @apply box-border m-0 p-0; }
+  html {
+    overflow-x: hidden;
+  }
+  body {
+    @apply bg-white text-duo-text font-sans antialiased overflow-x-hidden;
+  }
+
+  /* Always-visible custom scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-duo-gray-dark) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-duo-gray-dark);
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-duo-text);
+  }
+}
+
+@layer components {
+  /* Cleanup Global Utility Classes */
+  .primary-btn {
+    @apply bg-duo-green text-white py-3 px-6 rounded-xl font-black shadow-[0_4px_0_var(--color-duo-green-dark)] transition-all active:translate-y-1 active:shadow-none uppercase tracking-wider;
+  }
+
+  .danger-btn {
+    @apply bg-duo-red text-white py-3 px-6 rounded-xl font-black shadow-[0_4px_0_var(--color-duo-red-dark)] transition-all active:translate-y-1 active:shadow-none uppercase tracking-wider;
+  }
+
+  .secondary-btn {
+    @apply bg-transparent text-duo-blue border-2 border-duo-gray rounded-xl py-3 px-6 font-black transition-all hover:bg-duo-gray/10 active:translate-y-0.5 uppercase tracking-wider;
+  }
+
+  /* Map Nodes */
+  .map-node {
+    width: 80px;
+    height: 70px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+  }
+
+  /* Form elements */
+  .form-input {
+    @apply w-full p-4 rounded-[15px] border-2 border-duo-gray bg-duo-gray/20 font-bold text-duo-text outline-none focus:border-duo-blue transition-colors;
+  }
+  .form-error {
+    @apply bg-duo-red/10 border-2 border-duo-red/30 p-4 rounded-xl text-error font-bold;
+  }
+  .form-success {
+    @apply bg-duo-green/10 border-2 border-duo-green/30 p-4 rounded-xl text-duo-green font-bold;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    @apply h-2.5 bg-duo-gray rounded-full overflow-hidden;
+  }
+  .progress-bar > div {
+    @apply h-full bg-duo-green transition-all duration-700;
+  }
+
+  /* Game navbar */
+  .game-navbar {
+    @apply flex items-center px-6 h-16 bg-white border-b-2 border-duo-gray sticky top-0 z-30;
+  }
+  .nav-back {
+    @apply text-duo-gray-dark hover:text-duo-text transition-colors p-2 rounded-xl hover:bg-duo-gray/20;
+  }
+  .xp-track {
+    @apply h-4 bg-duo-gray rounded-full overflow-hidden;
+  }
+  .xp-track > .fill {
+    @apply h-full bg-duo-green rounded-full transition-all duration-300;
+  }
+  .currency-pill {
+    @apply flex items-center gap-2 bg-white border-2 border-duo-gray rounded-full px-4 py-1.5 font-black text-sm;
+  }
+
+  /* Text display for typing */
+  .text-display {
+    @apply text-3xl font-mono leading-relaxed tracking-wide select-none;
+  }
+  .char.pending {
+    @apply text-duo-gray-dark;
+  }
+  .char.active {
+    @apply text-duo-blue bg-duo-blue/10 rounded px-0.5;
+  }
+  .char.correct {
+    @apply text-duo-text;
+  }
+  .char.error {
+    @apply text-duo-red bg-duo-red/10 rounded px-0.5;
+  }
+
+  /* Game over modal */
+  .game-over-modal {
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+  }
+  .modal-content {
+    @apply bg-white rounded-3xl p-12 text-center max-w-lg w-full shadow-2xl;
+  }
+  .final-grid {
+    @apply grid grid-cols-3 gap-4;
+  }
+  .final-stat {
+    @apply flex flex-col items-center gap-1;
+  }
+  .final-stat label {
+    @apply text-xs font-black tracking-wider;
+  }
+  .final-stat span {
+    @apply text-3xl font-black;
+  }
+
+  .hidden-input {
+    @apply absolute opacity-0 pointer-events-none;
+  }
+
+  /* Layout container for the main content area (right of sidebar) */
+  .main-layout {
+    min-height: 100vh;
+    position: relative;
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    transition: margin-left 0.3s, width 0.3s;
+    overflow-x: hidden;
+  }
+}
+
+/* Responsive sidebar: hidden on < 768px */
+@media (max-width: 767px) {
+  .sidebar:not(.sidebar-open) {
+    transform: translateX(-100%);
+  }
+  .main-layout {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Full-screen game mode: hide sidebar, expand content */
+body.game-active {
+  overflow: hidden;
+}
+body.game-active .sidebar {
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+body.game-active .main-layout {
+  margin-left: 0;
+  width: 100%;
+}
+
+/* Fast Raining Mode: error shake */
+@keyframes game-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-4px); }
+  30% { transform: translateX(4px); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+.game-shake {
+  animation: game-shake 0.3s ease-in-out;
+}
+
+/* Fast Raining Mode: hit burst ring */
+@keyframes hit-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Fast Raining Mode: hit burst pop */
+@keyframes hit-pop {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* Fast Raining Mode: scan line pulse */
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
